@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/ProcessDataAPIBeta" name="ProcessDataAPIBeta" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/">
+        <inSequence>
+            <!-- Log the start of the process -->
+            <log level="full">
+                <property name="message" value="Starting the process"/>
+            </log>
+            <!-- Step 1: Call the clientes API -->
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="http://4.152.249.9/clientes">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <!-- Store the API response in the 'clientesResponse' property in the default scope -->
+            <property expression="json-eval($)" name="clientesResponse" scope="default" type="STRING"/>
+            <log level="full">
+                <property name="message" value="Called clientes API"/>
+                <property expression="get-property('clientesResponse')" name="clientesResponse"/>
+            </log>
+            <!-- Step 3: Iterate through each cliente record -->
+            <iterate attachPath="json-eval($)" expression="json-eval($)" id="IterateClientes" preservePayload="true">
+                <target>
+                    <sequence>
+                        <log level="full">
+                            <property name="message" value="Processing individual cliente"/>
+                            <property expression="." name="clienteData"/>
+                        </log>
+                        <!-- Extract and store various properties for each cliente in the default scope -->
+                        <property expression="json-eval($.cpfCnpj)" name="cpfCnpj" scope="default" type="STRING"/>
+                        <property expression="json-eval($.idCliente)" name="idCliente" scope="default" type="STRING"/>
+                        <property expression="json-eval($.matricula)" name="matricula" scope="default" type="STRING"/>
+                        <property expression="json-eval($.cep)" name="cep" scope="default" type="STRING"/>
+                        <property expression="json-eval($.logradouro)" name="logradouro" scope="default" type="STRING"/>
+                        <property expression="json-eval($.numeroLogradouro)" name="numeroLogradouro" scope="default" type="STRING"/>
+                        <property expression="json-eval($.complemento)" name="complemento" scope="default" type="STRING"/>
+                        <property expression="json-eval($.bairro)" name="bairro" scope="default" type="STRING"/>
+                        <property expression="json-eval($.cidade)" name="cidade" scope="default" type="STRING"/>
+                        <property expression="json-eval($.uf)" name="uf" scope="default" type="STRING"/>
+                        <!-- Log the extracted properties -->
+                        <log level="full">
+                            <property name="message" value="Extracted properties"/>
+                            <property expression="get-property('cpfCnpj')" name="cpfCnpj"/>
+                            <property expression="get-property('idCliente')" name="idCliente"/>
+                            <property expression="get-property('matricula')" name="matricula"/>
+                            <property expression="get-property('cep')" name="cep"/>
+                            <property expression="get-property('logradouro')" name="logradouro"/>
+                            <property expression="get-property('numeroLogradouro')" name="numeroLogradouro"/>
+                            <property expression="get-property('complemento')" name="complemento"/>
+                            <property expression="get-property('bairro')" name="bairro"/>
+                            <property expression="get-property('cidade')" name="cidade"/>
+                            <property expression="get-property('uf')" name="uf"/>
+                        </log>
+                        <!-- Conditional check for cpfCnpj value -->
+                        <filter regex="3859856731" source="get-property('cpfCnpj')">
+                            <then>
+                                <log level="full">
+                                    <property name="message" value="Starting OAuth2 token retrieval"/>
+                                </log>
+                                <!-- Set OAuth2 token request properties -->
+                                <property name="grant_type" scope="default" type="STRING" value="client_credentials"/>
+                                <property name="client_id" scope="default" type="STRING" value="a7a01c13-3ecb-41f2-84e1-b57f07b63da1"/>
+                                <property name="client_secret" scope="default" type="STRING" value="uch8Q~Fax39Vy5YUMq3KFUTrL5HF-LbnTiCPraAp"/>
+                                <property name="scope" scope="default" type="STRING" value="7132c33e-a28c-4c4f-afed-aeddc2c8c395/.default"/>
+                                <property name="Accept" scope="axis2" type="STRING" value="application/json"/>
+                                <header name="Accept" scope="transport" value="application/json"/>
+                                <!-- Create the payload for the OAuth2 token request -->
+                                <payloadFactory media-type="xml">
+                                    <format>
+                                        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                                            <soapenv:Body>
+                                                <root xmlns="">
+                                                    <grant_type>$1</grant_type>
+                                                    <client_id>$2</client_id>
+                                                    <client_secret>$3</client_secret>
+                                                    <scope>$4</scope>
+                                                </root>
+                                            </soapenv:Body>
+                                        </soapenv:Envelope>
+                                    </format>
+                                    <args>
+                                        <arg evaluator="xml" expression="get-property('grant_type')"/>
+                                        <arg evaluator="xml" expression="get-property('client_id')"/>
+                                        <arg evaluator="xml" expression="get-property('client_secret')"/>
+                                        <arg evaluator="xml" expression="get-property('scope')"/>
+                                    </args>
+                                </payloadFactory>
+                                <!-- Set messageType and ContentType for the POST request -->
+                                <property name="messageType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+                                <property name="ContentType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+                                <!-- Make the POST request to obtain the OAuth2 token -->
+                                <call>
+                                    <endpoint>
+                                        <http method="post" uri-template="https://login.microsoftonline.com/8991054c-e987-4297-a373-f9cf0e0c47ec/oauth2/v2.0/token">
+                                            <suspendOnFailure>
+                                                <initialDuration>-1</initialDuration>
+                                                <progressionFactor>1.0</progressionFactor>
+                                            </suspendOnFailure>
+                                            <markForSuspension>
+                                                <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                            </markForSuspension>
+                                        </http>
+                                    </endpoint>
+                                    <target type="property">tokenResponse</target>
+                                </call>
+                                <!-- Log the obtained OAuth2 token -->
+                                <log level="full">
+                                    <property name="message" value="Obtained OAuth2 token"/>
+                                    <property expression="get-property('tokenResponse')" name="response"/>
+                                </log>
+                                <!-- Extract the token from the response -->
+                                <property expression="json-eval($.access_token)" name="accessToken" scope="default" type="STRING"/>
+                                <log level="full">
+                                    <property name="message" value="Extracted token"/>
+                                    <property expression="get-property('accessToken')" name="accessToken"/>
+                                </log>
+                                <!-- Step 2: Call SISTEMA COMERCIAL API -->
+                                <log level="full">
+                                    <property name="message" value="Calling SISTEMA COMERCIAL API"/>
+                                </log>
+                                <property expression="concat('Bearer ', get-property('accessToken'))" name="Authorization" scope="transport" type="STRING"/>
+                                <call>
+                                    <endpoint>
+                                        <http method="get" uri-template="https://aegea-api-manager-01-hml.azure-api.net/external/gss/v1/ligacoe/rio02/documentos/3859856731">
+                                            <suspendOnFailure>
+                                                <initialDuration>-1</initialDuration>
+                                                <progressionFactor>1.0</progressionFactor>
+                                            </suspendOnFailure>
+                                            <markForSuspension>
+                                                <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                            </markForSuspension>
+                                        </http>
+                                    </endpoint>
+                                    <target type="property">sistemaResponse</target>
+                                </call>
+                                <!-- Log response from SISTEMA COMERCIAL API -->
+                                <log level="full">
+                                    <property name="message" value="Response from SISTEMA COMERCIAL API"/>
+                                    <property expression="get-property('sistemaResponse')" name="response"/>
+                                </log>
+                                <log level="full">
+                                    <property name="message" value="Extracted properties after calls"/>
+                                    <property expression="get-property('cpfCnpj')" name="cpfCnpj"/>
+                                    <property expression="get-property('idCliente')" name="idCliente"/>
+                                    <property expression="get-property('matricula')" name="matricula"/>
+                                    <property expression="get-property('cep')" name="cep"/>
+                                    <property expression="get-property('logradouro')" name="logradouro"/>
+                                    <property expression="get-property('numeroLogradouro')" name="numeroLogradouro"/>
+                                    <property expression="get-property('complemento')" name="complemento"/>
+                                    <property expression="get-property('bairro')" name="bairro"/>
+                                    <property expression="get-property('cidade')" name="cidade"/>
+                                    <property expression="get-property('uf')" name="uf"/>
+                                </log>
+                                <!-- Step 3: Handle 404 Not Found by creating information on the API "Ligações" -->
+                                <filter regex="404" source="get-property('axis2', 'HTTP_SC')">
+                                    <then>
+                                        <log level="full">
+                                            <property name="message" value="Resource not found, proceeding to create information on API 'Ligações'"/>
+                                        </log>
+                                        <log>
+                                            <property expression="$ctx:idCliente" name="=============="/>
+                                        </log>
+                                        <payloadFactory media-type="json">
+                                            <format>
+                                                {
+                                                    "idCliente": "$1",
+                                                    "matricula": "$2",
+                                                    "cep": "$3",
+                                                    "logradouro": "$4",
+                                                    "numeroLogradouro": "$5",
+                                                    "complemento": "$6",
+                                                    "bairro": "$7",
+                                                    "cidade": "$8",
+                                                    "uf": "$9"
+                                                }
+                                            </format>
+                                            <args>
+                                                <arg evaluator="xml" expression="get-property('idCliente')"/>
+                                                <arg evaluator="xml" expression="get-property('matricula')"/>
+                                                <arg evaluator="xml" expression="get-property('cep')"/>
+                                                <arg evaluator="xml" expression="get-property('logradouro')"/>
+                                                <arg evaluator="xml" expression="get-property('numeroLogradouro')"/>
+                                                <arg evaluator="xml" expression="get-property('complemento')"/>
+                                                <arg evaluator="xml" expression="get-property('bairro')"/>
+                                                <arg evaluator="xml" expression="get-property('cidade')"/>
+                                                <arg evaluator="xml" expression="get-property('uf')"/>
+                                            </args>
+                                        </payloadFactory>
+                                        <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                                        <property name="ContentType" scope="axis2" type="STRING" value="application/json"/>
+                                        <call>
+                                            <endpoint>
+                                                <http method="post" uri-template="http://4.152.249.9/ligacoes">
+                                                    <suspendOnFailure>
+                                                        <initialDuration>-1</initialDuration>
+                                                        <progressionFactor>1.0</progressionFactor>
+                                                    </suspendOnFailure>
+                                                    <markForSuspension>
+                                                        <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                                    </markForSuspension>
+                                                </http>
+                                            </endpoint>
+                                        </call>
+                                        <log level="full">
+                                            <property name="message" value="Created information on API 'Ligações'"/>
+                                            <property expression="$body" name="response"/>
+                                        </log>
+                                    </then>
+                                    <else>
+                                        <log level="full">
+                                            <property name="message" value="Resource found, skipping creation on API 'Ligações'"/>
+                                        </log>
+                                    </else>
+                                </filter>
+                            </then>
+                            <else>
+                                <log level="full">
+                                    <property name="message" value="Skipping integration for cliente"/>
+                                </log>
+                            </else>
+                        </filter>
+                    </sequence>
+                </target>
+            </iterate>
+        </inSequence>
+        <outSequence/>
+        <faultSequence/>
+    </resource>
+</api>

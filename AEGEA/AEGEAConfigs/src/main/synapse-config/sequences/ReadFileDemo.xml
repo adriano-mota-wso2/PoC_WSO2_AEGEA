@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="ReadFileDemo" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <!-- Step 1: Read data from CSV using FileDataService -->
+    <log level="full">
+        <property name="message" value="Starting to read data from CSV using FileDataService"/>
+    </log>
+    <dataServiceCall description="Saida do DS" serviceName="AEGEADS">
+        <operations type="single">
+            <operation name="_getreadfile"/>
+        </operations>
+        <source type="inline"/>
+        <target type="body"/>
+    </dataServiceCall>
+    <log level="full">
+        <property name="message" value="Completed reading data from CSV"/>
+    </log>
+    <iterate expression="//*[local-name()='Cliente']" id="itr" sequential="true">
+        <target>
+            <sequence>
+                <payloadFactory media-type="json">
+                    <format>
+                        {
+                            "nome": "$1",
+                            "matricula": "$2",
+                            "cpfCnpj": "$3",
+                            "email": "$4",
+                            "cep": "$5",
+                            "logradouro": "$6",
+                            "numeroLogradouro": "$7",
+                            "complemento": "$8",
+                            "bairro": "$9",
+                            "cidade": "$10",
+                            "uf": "$11"
+                        }
+                    </format>
+                    <args>
+                        <arg evaluator="xml" expression="//*[local-name()='nome']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='matricula']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='numeroDocumento']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='mail']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.cep']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.logradouro']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.numero']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.complemento']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.bairro']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.municipio']"/>
+                        <arg evaluator="xml" expression="//*[local-name()='endereco.uf']"/>
+                    </args>
+                </payloadFactory>
+                <log level="full">
+                    <property name="message" value="Constructed JSON payload"/>
+                    <property expression="json-eval($)" name="jsonPayload"/>
+                </log>
+                <!-- Step 7: Post enriched data to API Clientes -->
+                <call blocking="true">
+                    <endpoint>
+                        <http method="post" uri-template="http://4.152.249.9/clientes">
+                            <suspendOnFailure>
+                                <initialDuration>-1</initialDuration>
+                                <progressionFactor>1</progressionFactor>
+                            </suspendOnFailure>
+                            <markForSuspension>
+                                <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                            </markForSuspension>
+                        </http>
+                    </endpoint>
+                </call>
+                <log level="full">
+                    <property name="message" value="Completed posting to API Clientes"/>
+                </log>
+            </sequence>
+        </target>
+    </iterate>
+</sequence>

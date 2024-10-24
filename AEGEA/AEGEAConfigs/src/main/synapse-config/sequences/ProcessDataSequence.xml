@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="ProcessDataSequence" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log level="full">
+        <property name="message" value="Starting the process"/>
+    </log>
+    <!-- Step 1: Call the clientes API -->
+    <call>
+        <endpoint>
+            <http method="get" uri-template="http://4.152.249.9/clientes">
+                <suspendOnFailure>
+                    <initialDuration>-1</initialDuration>
+                    <progressionFactor>1</progressionFactor>
+                </suspendOnFailure>
+                <markForSuspension>
+                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                </markForSuspension>
+            </http>
+        </endpoint>
+    </call>
+    <property expression="json-eval($)" name="clientesResponse" scope="default" type="STRING"/>
+    <log level="full">
+        <property name="message" value="Called clientes API"/>
+        <property expression="get-property('clientesResponse')" name="clientesResponse"/>
+    </log>
+    <!-- Step 3: Iterate through each cliente record -->
+    <iterate attachPath="json-eval($)" expression="json-eval($)" id="IterateClientes" preservePayload="true">
+        <target>
+            <sequence>
+                <log level="full">
+                    <property name="message" value="Processing individual cliente"/>
+                    <property expression="." name="clienteData"/>
+                </log>
+                <!-- Step 3: Extract cpfCnpj -->
+                <log level="full">
+                    <property name="message" value="Before cpfCnpj extraction"/>
+                    <property expression="json-eval($.cpfCnpj)" name="cpfCnpj"/>
+                </log>
+                <property expression="json-eval($.cpfCnpj)" name="url.var.cpfCnpj" scope="default" type="STRING"/>
+            </sequence>
+        </target>
+    </iterate>
+</sequence>

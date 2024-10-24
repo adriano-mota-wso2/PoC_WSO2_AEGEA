@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/processData" name="ProcessDataAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/">
+        <inSequence>
+            <!-- Step 1: Log start of process -->
+            <log level="full">
+                <property name="message" value="Starting OAuth2 token retrieval"/>
+            </log>
+            <property name="grant_type" scope="default" type="STRING" value="client_credentials"/>
+            <property name="client_id" scope="default" type="STRING" value="a7a01c13-3ecb-41f2-84e1-b57f07b63da1"/>
+            <property name="client_secret" scope="default" type="STRING" value="uch8Q~Fax39Vy5YUMq3KFUTrL5HF-LbnTiCPraAp"/>
+            <property name="scope" scope="default" type="STRING" value="7132c33e-a28c-4c4f-afed-aeddc2c8c395/.default"/>
+            <property name="Accept" scope="axis2" type="STRING" value="application/json"/>
+            <header name="Accept" scope="transport" value="application/json"/>
+            <payloadFactory media-type="xml">
+                <format>
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                        <soapenv:Body>
+                            <root xmlns="">
+                                <grant_type>$1</grant_type>
+                                <client_id>$2</client_id>
+                                <client_secret>$3</client_secret>
+                                <scope>$4</scope>
+                            </root>
+                        </soapenv:Body>
+                    </soapenv:Envelope>
+                </format>
+                <args>
+                    <arg evaluator="xml" expression="$ctx:grant_type"/>
+                    <arg evaluator="xml" expression="$ctx:client_id"/>
+                    <arg evaluator="xml" expression="$ctx:client_secret"/>
+                    <arg evaluator="xml" expression="$ctx:scope"/>
+                </args>
+            </payloadFactory>
+            <property name="messageType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+            <property name="ContentType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+            <call>
+                <endpoint>
+                    <http method="post" uri-template="https://login.microsoftonline.com/8991054c-e987-4297-a373-f9cf0e0c47ec/oauth2/v2.0/token">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1.0</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property name="message" value="Obtained OAuth2 token"/>
+                <property expression="$body" name="response"/>
+            </log>
+            <!-- Extract the token from the response -->
+            <property expression="json-eval($.access_token)" name="accessToken" scope="default" type="STRING"/>
+            <log level="full">
+                <property name="message" value="Extracted token"/>
+                <property expression="$ctx:accessToken" name="accessToken"/>
+            </log>
+            <!-- Step 2: Call SISTEMA COMERCIAL API -->
+            <log level="full">
+                <property name="message" value="Calling SISTEMA COMERCIAL API"/>
+            </log>
+            <property expression="concat('Bearer ', get-property('accessToken'))" name="Authorization" scope="transport" type="STRING"/>
+            <call>
+                <endpoint>
+                    <http method="get" uri-template="https://aegea-api-manager-01-hml.azure-api.net/external/gss/v1/ligacoe/rio02/documentos/3859856731">
+                        <suspendOnFailure>
+                            <initialDuration>-1</initialDuration>
+                            <progressionFactor>1.0</progressionFactor>
+                        </suspendOnFailure>
+                        <markForSuspension>
+                            <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                        </markForSuspension>
+                    </http>
+                </endpoint>
+            </call>
+            <log level="full">
+                <property name="message" value="Response from SISTEMA COMERCIAL API"/>
+                <property expression="$body" name="response"/>
+            </log>
+            <!-- Step 3: Handle 404 Not Found by creating information on the API "Ligações" -->
+            <filter regex="404" source="get-property('axis2', 'HTTP_SC')">
+                <then>
+                    <log level="full">
+                        <property name="message" value="Resource not found, proceeding to create information on API 'Ligações'"/>
+                    </log>
+                    <payloadFactory media-type="json">
+                        <format>
+                            {
+                                "idCliente": 400349806,
+                                "matricula": 401068548,
+                                "cep": "25555091",
+                                "logradouro": "Rua Antônio Carlos Monteiro da Silva",
+                                "numeroLogradouro": "1337",
+                                "complemento": "X",
+                                "bairro": "Jardim Meriti",
+                                "cidade": "São João de Meriti",
+                                "uf": "RJ"
+                            }
+                        </format>
+                        <args/>
+                    </payloadFactory>
+                    <property name="messageType" scope="axis2" type="STRING" value="application/json"/>
+                    <property name="ContentType" scope="axis2" type="STRING" value="application/json"/>
+                    <call>
+                        <endpoint>
+                            <http method="post" uri-template="http://4.152.249.9/ligacoes">
+                                <suspendOnFailure>
+                                    <initialDuration>-1</initialDuration>
+                                    <progressionFactor>1.0</progressionFactor>
+                                </suspendOnFailure>
+                                <markForSuspension>
+                                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                                </markForSuspension>
+                            </http>
+                        </endpoint>
+                    </call>
+                    <log level="full">
+                        <property name="message" value="Created information on API 'Ligações'"/>
+                        <property expression="$body" name="response"/>
+                    </log>
+                </then>
+                <else>
+                    <log level="full">
+                        <property name="message" value="Resource found, skipping creation on API 'Ligações'"/>
+                    </log>
+                </else>
+            </filter>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence>
+            <log level="full">
+                <property name="message" value="Error occurred"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>
+                    {"error": "An error occurred while processing your request."}
+                </format>
+                <args/>
+            </payloadFactory>
+            <property name="HTTP_SC" scope="axis2" type="STRING" value="500"/>
+            <send/>
+        </faultSequence>
+    </resource>
+</api>

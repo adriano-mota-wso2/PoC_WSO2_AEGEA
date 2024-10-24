@@ -1,0 +1,11 @@
+---
+key: "ProcessDataAPIBeta-1.0.0"
+name : "ProcessDataAPIBeta"
+displayName : "ProcessDataAPIBeta"
+description: "Sample API"
+version: "1.0.0"
+serviceUrl: "https://{MI_HOST}:{MI_PORT}/ProcessDataAPIBeta"
+definitionType: "OAS3"
+securityType: "BASIC"
+mutualSSLEnabled: false
+apiId : "null"

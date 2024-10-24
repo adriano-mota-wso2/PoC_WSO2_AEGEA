@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/ProcessDataAPI" name="ProcessDataAPITest" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/">
+        <inSequence>
+            <!-- Call the ProcessDataSequence -->
+            <sequence key="ProcessDataSequence"/>
+        </inSequence>
+        <outSequence>
+            <send/>
+        </outSequence>
+        <faultSequence>
+            <log level="full">
+                <property name="message" value="Error occurred"/>
+            </log>
+            <payloadFactory media-type="json">
+                <format>{"error": "An error occurred while processing your request."}</format>
+                <args/>
+            </payloadFactory>
+            <property name="HTTP_SC" scope="axis2" type="STRING" value="500"/>
+            <send/>
+        </faultSequence>
+    </resource>
+</api>

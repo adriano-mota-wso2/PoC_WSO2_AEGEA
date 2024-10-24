@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><artifacts>
+    <artifact name="ReadFileSequence" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ReadFileSequence.xml</file>
+    </artifact>
+    <artifact name="AEGEA" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/AEGEA.xml</file>
+    </artifact>
+    <artifact name="AEGEA_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/AEGEA_swagger.yaml</file>
+    </artifact>
+    <artifact name="AEGEA_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/AEGEA_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPI" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/ProcessDataAPI.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPI_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPI_swagger.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPI_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPI_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataSequence" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ProcessDataSequence.xml</file>
+    </artifact>
+    <artifact name="OAuthTokenRetrievalSequence" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/OAuthTokenRetrievalSequence.xml</file>
+    </artifact>
+    <artifact name="OAuthTokenAPI" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/OAuthTokenAPI.xml</file>
+    </artifact>
+    <artifact name="OAuthTokenAPI_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/OAuthTokenAPI_swagger.yaml</file>
+    </artifact>
+    <artifact name="OAuthTokenAPI_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/OAuthTokenAPI_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIDemo" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/ProcessDataAPIDemo.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIDemo_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPIDemo_swagger.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIDemo_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPIDemo_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPITest" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/ProcessDataAPITest.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPITest_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPITest_swagger.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPITest_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPITest_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataSequenceDemo" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ProcessDataSequenceDemo.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPISample" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/ProcessDataAPISample.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPISample_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPISample_swagger.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPISample_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPISample_metadata.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIBeta" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/ProcessDataAPIBeta.xml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIBeta_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPIBeta_swagger.yaml</file>
+    </artifact>
+    <artifact name="ProcessDataAPIBeta_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/ProcessDataAPIBeta_metadata.yaml</file>
+    </artifact>
+    <artifact name="ReadFileSeq" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ReadFileSeq.xml</file>
+    </artifact>
+    <artifact name="AEGEATEST" groupId="com.example.api" version="1.0.0" type="synapse/api" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/api/AEGEATEST.xml</file>
+    </artifact>
+    <artifact name="AEGEATEST_swagger" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/AEGEATEST_swagger.yaml</file>
+    </artifact>
+    <artifact name="AEGEATEST_metadata" groupId="com.example.metadata" version="1.0.0" type="synapse/metadata" serverRole="EnterpriseServiceBus">
+        <file>src/main/resources/metadata/AEGEATEST_metadata.yaml</file>
+    </artifact>
+    <artifact name="ReadFileDemo" groupId="com.example.sequence" version="1.0.0" type="synapse/sequence" serverRole="EnterpriseServiceBus">
+        <file>src/main/synapse-config/sequences/ReadFileDemo.xml</file>
+    </artifact>
+</artifacts>

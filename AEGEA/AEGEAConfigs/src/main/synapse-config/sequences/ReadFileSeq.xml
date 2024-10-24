@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="ReadFileSeq" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <!-- Step 1: Read data from CSV using FileDataService -->
+    <log level="full">
+        <property name="message" value="Starting to read data from CSV using FileDataService"/>
+    </log>
+    <call blocking="true">
+        <endpoint>
+            <http method="get" uri-template="http://localhost:8290/services/AEGEADS/ReadFile">
+                <suspendOnFailure>
+                    <initialDuration>-1</initialDuration>
+                    <progressionFactor>1</progressionFactor>
+                </suspendOnFailure>
+                <markForSuspension>
+                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                </markForSuspension>
+            </http>
+        </endpoint>
+    </call>
+    <log level="full">
+        <property name="message" value="Completed reading data from CSV"/>
+    </log>
+    <!-- Step 2: Store CSV data in a property -->
+    <property expression="$body/*" name="csvData" scope="default" type="OM"/>
+    <!-- Step 3: Iterate through each Cliente element -->
+    <log level="full">
+        <property name="message" value="Starting iteration through each Cliente element"/>
+    </log>
+    <iterate expression="$ctx:csvData//*[local-name()='Cliente']" id="itr" sequential="true">
+        <target>
+            <sequence>
+                <log level="full">
+                    <property name="message" value="Processing Cliente element"/>
+                </log>
+                <!-- Step 4: Extract and set individual column properties -->
+                <property expression="//*[local-name()='nome']/text()" name="uri.var.nome" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='matricula']/text()" name="uri.var.matricula" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='cpfCnpj']/text()" name="uri.var.cpfCnpj" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='email']/text()" name="uri.var.email" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='cep']/text()" name="uri.var.cep" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='logradouro']/text()" name="uri.var.logradouro" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='numeroLogradouro']/text()" name="uri.var.numeroLogradouro" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='complemento']/text()" name="uri.var.complemento" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='bairro']/text()" name="uri.var.bairro" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='cidade']/text()" name="uri.var.cidade" scope="default" type="STRING"/>
+                <property expression="//*[local-name()='uf']/text()" name="uri.var.uf" scope="default" type="STRING"/>
+                <!-- Log the extracted properties -->
+                <log level="full">
+                    <property expression="get-property('uri.var.nome')" name="nome"/>
+                    <property expression="get-property('uri.var.matricula')" name="matricula"/>
+                    <property expression="get-property('uri.var.cpfCnpj')" name="cpfCnpj"/>
+                    <property expression="get-property('uri.var.email')" name="email"/>
+                    <property expression="get-property('uri.var.cep')" name="cep"/>
+                    <property expression="get-property('uri.var.logradouro')" name="logradouro"/>
+                    <property expression="get-property('uri.var.numeroLogradouro')" name="numeroLogradouro"/>
+                    <property expression="get-property('uri.var.complemento')" name="complemento"/>
+                    <property expression="get-property('uri.var.bairro')" name="bairro"/>
+                    <property expression="get-property('uri.var.cidade')" name="cidade"/>
+                    <property expression="get-property('uri.var.uf')" name="uf"/>
+                </log>
+                <log level="full">
+                    <property name="message" value="Received response from external service"/>
+                </log>
+                <!-- Step 6: Construct JSON payload -->
+                <log level="full">
+                    <property name="message" value="Constructing JSON payload"/>
+                </log>
+                <payloadFactory media-type="json">
+                    <format>
+                        {
+                            "nome": "$1",
+                            "matricula": "$2",
+                            "cpfCnpj": "$3",
+                            "email": "$4",
+                            "cep": "$5",
+                            "logradouro": "$6",
+                            "numeroLogradouro": "$7",
+                            "complemento": "$8",
+                            "bairro": "$9",
+                            "cidade": "$10",
+                            "uf": "$11"
+                        }
+                    </format>
+                    <args>
+                        <arg evaluator="xml" expression="get-property('uri.var.nome')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.matricula')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.cpfCnpj')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.email')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.cep')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.logradouro')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.numeroLogradouro')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.complemento')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.bairro')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.localidade')"/>
+                        <arg evaluator="xml" expression="get-property('uri.var.uf')"/>
+                    </args>
+                </payloadFactory>
+                <log level="full">
+                    <property name="message" value="Constructed JSON payload"/>
+                    <property expression="get-property('JSON_PAYLOAD')" name="jsonPayload"/>
+                </log>
+                <!-- Step 7: Post enriched data to API Clientes -->
+                <call blocking="true">
+                    <endpoint>
+                        <http method="post" uri-template="http://4.152.249.9/clientes">
+                            <suspendOnFailure>
+                                <initialDuration>-1</initialDuration>
+                                <progressionFactor>1</progressionFactor>
+                            </suspendOnFailure>
+                            <markForSuspension>
+                                <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                            </markForSuspension>
+                        </http>
+                    </endpoint>
+                </call>
+                <log level="full">
+                    <property name="message" value="Completed posting to API Clientes"/>
+                </log>
+            </sequence>
+        </target>
+    </iterate>
+    <log level="full">
+        <property name="message" value="Completed iteration through Cliente elements"/>
+    </log>
+</sequence>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/getOAuthToken" name="OAuthTokenAPI" xmlns="http://ws.apache.org/ns/synapse">
+    <resource inSequence="OAuthTokenRetrievalSequence" methods="GET" outSequence="main">
+        <faultSequence/>
+    </resource>
+</api>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence name="OAuthTokenRetrievalSequence" trace="disable" xmlns="http://ws.apache.org/ns/synapse">
+    <log level="full">
+        <property name="message" value="Starting OAuth2 token retrieval"/>
+    </log>
+    <property name="grant_type" scope="default" type="STRING" value="client_credentials"/>
+    <property name="client_id" scope="default" type="STRING" value="a7a01c13-3ecb-41f2-84e1-b57f07b63da1"/>
+    <property name="client_secret" scope="default" type="STRING" value="uch8Q~Fax39Vy5YUMq3KFUTrL5HF-LbnTiCPraAp"/>
+    <property name="scope" scope="default" type="STRING" value="7132c33e-a28c-4c4f-afed-aeddc2c8c395/.default"/>
+    <property name="Accept" scope="axis2" type="STRING" value="application/json"/>
+    <header name="Accept" scope="transport" value="application/json"/>
+    <payloadFactory media-type="xml">
+        <format>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                <soapenv:Body>
+                    <root xmlns="">
+                        <grant_type>$1</grant_type>
+                        <client_id>$2</client_id>
+                        <client_secret>$3</client_secret>
+                        <scope>$4</scope>
+                    </root>
+                </soapenv:Body>
+            </soapenv:Envelope>
+        </format>
+        <args>
+            <arg evaluator="xml" expression="$ctx:grant_type" xmlns:ns="http://org.apache.synapse/xsd"/>
+            <arg evaluator="xml" expression="$ctx:client_id" xmlns:ns="http://org.apache.synapse/xsd"/>
+            <arg evaluator="xml" expression="$ctx:client_secret" xmlns:ns="http://org.apache.synapse/xsd"/>
+            <arg evaluator="xml" expression="$ctx:scope" xmlns:ns="http://org.apache.synapse/xsd"/>
+        </args>
+    </payloadFactory>
+    <property name="messageType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+    <property name="ContentType" scope="axis2" type="STRING" value="application/x-www-form-urlencoded"/>
+    <property name="Cookie" scope="axis2" type="STRING" value="fpc=AnEwbrcafd9KsJU7OEQCrXDc2Lz4AQAAAFy8Qt4OAAAA; stsservicecookie=estsfd; x-ms-gateway-slice=estsfd"/>
+    <call>
+        <endpoint>
+            <http method="post" uri-template="https://login.microsoftonline.com/8991054c-e987-4297-a373-f9cf0e0c47ec/oauth2/v2.0/token">
+                <suspendOnFailure>
+                    <initialDuration>-1</initialDuration>
+                    <progressionFactor>1.0</progressionFactor>
+                </suspendOnFailure>
+                <markForSuspension>
+                    <retriesBeforeSuspension>0</retriesBeforeSuspension>
+                </markForSuspension>
+            </http>
+        </endpoint>
+    </call>
+    <property expression="json-eval($.access_token)" name="token" scope="default" type="STRING"/>
+    <log level="full">
+        <property name="message" value="Obtained OAuth2 token"/>
+        <property expression="get-property('token')" name="token"/>
+    </log>
+    <send/>
+</sequence>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/AEGEATEST" name="AEGEATEST" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="GET" uri-template="/">
+        <inSequence>
+            <log level="custom">
+                <property name="message" value="API call received"/>
+            </log>
+            <sequence key="ReadFileSeq"/>
+            <log level="full">
+                <property name="message" value="API call completed"/>
+            </log>
+            <respond/>
+        </inSequence>
+        <outSequence>
+            <log level="full">
+                <property name="message" value="Sending response"/>
+            </log>
+            <send/>
+        </outSequence>
+        <faultSequence>
+            <log level="full">
+                <property name="message" value="Error occurred"/>
+            </log>
+            <property name="HTTP_SC" scope="axis2" type="STRING" value="500"/>
+            <payloadFactory media-type="json">
+                <format>
+                    {
+                        "error": "An error occurred while processing your request."
+                    }
+                </format>
+                <args/>
+            </payloadFactory>
+            <send/>
+        </faultSequence>
+    </resource>
+</api>
